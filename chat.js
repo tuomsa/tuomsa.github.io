@@ -23,7 +23,7 @@ function saveHistory() {
 function renderHistory() {
   historyList.innerHTML = '';
   if (!allChats.length) {
-    historyList.innerHTML = '<p style="color:#888;font-size:0.85rem;">No past chats</p>';
+    historyList.innerHTML = '<p style="color:var(--text-secondary);font-size:0.85rem;">No past chats</p>';
     return;
   }
   [...allChats].reverse().forEach((chat, i) => {
@@ -136,7 +136,7 @@ async function handleSend() {
         typing.remove();
         botDiv = addMessage(partial, 'bot', false);
       } else {
-        botDiv.firstChild.textContent = partial;
+        botDiv.childNodes[0].textContent = partial;
       }
       messagesEl.scrollTop = messagesEl.scrollHeight;
     });
@@ -146,8 +146,8 @@ async function handleSend() {
     }
 
     if (currentChat.length >= 2) {
-      const last = allChats[allChats.length - 1];
-      if (last && last.length === currentChat.length - 2) {
+      const existing = allChats.findIndex(c => c === currentChat);
+      if (allChats.length && allChats[allChats.length - 1].length < currentChat.length) {
         allChats[allChats.length - 1] = [...currentChat];
       } else {
         allChats.push([...currentChat]);
@@ -189,7 +189,6 @@ function exportChat() {
   a.click();
 }
 
-// Voice input
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRecognition) {
   const recognition = new SpeechRecognition();
@@ -198,22 +197,21 @@ if (SpeechRecognition) {
 
   voiceBtn.onclick = () => {
     recognition.start();
-    voiceBtn.textContent = 'Listening...';
+    voiceBtn.textContent = 'Listening…';
   };
 
   recognition.onresult = (e) => {
     input.value = e.results[0][0].transcript;
-    voiceBtn.textContent = '🎤 VOICE';
+    voiceBtn.textContent = 'Voice';
   };
 
   recognition.onend = () => {
-    voiceBtn.textContent = '🎤 VOICE';
+    voiceBtn.textContent = 'Voice';
   };
 } else {
   voiceBtn.style.display = 'none';
 }
 
-// Suggested prompts
 document.querySelectorAll('.suggestions button').forEach(btn => {
   btn.onclick = () => {
     input.value = btn.dataset.prompt;
@@ -221,10 +219,9 @@ document.querySelectorAll('.suggestions button').forEach(btn => {
   };
 });
 
-// Theme toggle
 themeToggle.onclick = () => {
-  document.body.classList.toggle('light');
-  themeToggle.textContent = document.body.classList.contains('light') ? 'DARK' : 'LIGHT';
+  document.body.classList.toggle('dark');
+  themeToggle.textContent = document.body.classList.contains('dark') ? 'Light' : 'Dark';
 };
 
 sendBtn.onclick = handleSend;
