@@ -3,34 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEXUS // Chat</title>
+  <title>Chat</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
     :root {
-      --bg: #0a0a0f;
-      --text: #e0e0e0;
-      --accent: #00ffc8;
-      --accent2: #a855f7;
-      --panel: rgba(15, 15, 25, 0.7);
-      --user-bg: linear-gradient(135deg, #00ffc8, #00d4aa);
-      --bot-bg: rgba(30, 30, 50, 0.8);
+      --bg: #f5f5f7;
+      --panel: #ffffff;
+      --text: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --accent: #0071e3;
+      --border: #e5e5ea;
+      --user-bg: #0071e3;
+      --bot-bg: #f2f2f7;
     }
 
-    body.light {
-      --bg: #f4f4f8;
-      --text: #1a1a1a;
-      --accent: #0066cc;
-      --accent2: #7c3aed;
-      --panel: rgba(255, 255, 255, 0.85);
-      --user-bg: linear-gradient(135deg, #0066cc, #3b82f6);
-      --bot-bg: #eee;
+    body.dark {
+      --bg: #000000;
+      --panel: #1c1c1e;
+      --text: #f5f5f7;
+      --text-secondary: #98989d;
+      --accent: #0a84ff;
+      --border: #38383a;
+      --user-bg: #0a84ff;
+      --bot-bg: #2c2c2e;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -42,59 +44,62 @@
     header {
       padding: 1rem 1.5rem;
       background: var(--panel);
-      border-bottom: 1px solid var(--accent);
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      backdrop-filter: blur(10px);
     }
 
     header h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.3rem;
-      letter-spacing: 2px;
-      color: var(--accent);
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
     }
 
     .header-controls button {
       background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       margin-left: 0.5rem;
+    }
+
+    .header-controls button:hover {
+      background: var(--bot-bg);
     }
 
     main {
       flex: 1;
-      max-width: 860px;
+      max-width: 760px;
       margin: 0 auto;
-      padding: 1rem;
+      padding: 1.5rem 1rem;
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.25rem;
     }
 
     #messages {
       flex: 1;
-      min-height: 300px;
-      max-height: 55vh;
-      padding: 1rem;
+      min-height: 320px;
+      max-height: 58vh;
+      padding: 1.25rem;
       background: var(--panel);
-      border: 1px solid var(--accent);
-      border-radius: 12px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
       overflow-y: auto;
-      backdrop-filter: blur(8px);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .msg {
       margin-bottom: 1rem;
-      padding: 0.75rem 1rem;
-      border-radius: 10px;
-      max-width: 85%;
+      padding: 0.85rem 1.1rem;
+      border-radius: 18px;
+      max-width: 80%;
+      line-height: 1.5;
       position: relative;
       animation: fadeIn 0.2s ease;
     }
@@ -108,23 +113,24 @@
       background: var(--user-bg);
       color: #fff;
       margin-left: auto;
+      border-bottom-right-radius: 6px;
     }
 
     .msg.bot {
       background: var(--bot-bg);
-      border: 1px solid var(--accent2);
+      border-bottom-left-radius: 6px;
     }
 
     .copy-btn {
       position: absolute;
-      top: 6px;
-      right: 6px;
-      background: rgba(0,0,0,0.3);
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.15);
       border: none;
-      color: #fff;
+      color: inherit;
       font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 3px 8px;
+      border-radius: 12px;
       cursor: pointer;
       opacity: 0;
       transition: opacity 0.15s;
@@ -136,99 +142,134 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-      margin-bottom: 0.5rem;
     }
 
     .suggestions button {
-      background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      padding: 0.4rem 0.7rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.45rem 0.9rem;
       border-radius: 20px;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       cursor: pointer;
+    }
+
+    .suggestions button:hover {
+      background: var(--bot-bg);
     }
 
     .chat-box {
       background: var(--panel);
-      border: 1px solid var(--accent);
-      border-radius: 12px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
       padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .chat-box textarea {
       width: 100%;
       min-height: 80px;
-      padding: 0.8rem;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--accent);
-      border-radius: 8px;
+      padding: 0.9rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 12px;
       color: var(--text);
       font-family: inherit;
+      font-size: 1rem;
       resize: vertical;
     }
 
+    .chat-box textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
     .chat-box button, .extra-btn {
-      margin-top: 0.5rem;
+      margin-top: 0.6rem;
       margin-right: 0.4rem;
-      padding: 0.5rem 1rem;
-      background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      border-radius: 6px;
+      padding: 0.55rem 1.1rem;
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      border-radius: 20px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .chat-box button.secondary, .extra-btn {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .chat-box button.secondary:hover, .extra-btn:hover {
+      background: var(--bot-bg);
     }
 
     #history, .settings {
       background: var(--panel);
-      border: 1px solid var(--accent2);
-      border-radius: 12px;
-      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.1rem;
+    }
+
+    #history h3, .settings strong {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      display: block;
     }
 
     .history-item {
-      padding: 0.5rem;
+      padding: 0.6rem 0.4rem;
       cursor: pointer;
-      font-size: 0.85rem;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
     }
 
-    .history-item:hover { background: rgba(0,255,200,0.08); }
+    .history-item:hover {
+      color: var(--text);
+      background: var(--bot-bg);
+      border-radius: 8px;
+    }
 
     .settings textarea {
       width: 100%;
-      min-height: 60px;
+      min-height: 70px;
       margin-top: 0.4rem;
-      padding: 0.5rem;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--accent2);
+      padding: 0.7rem;
+      background: transparent;
+      border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 6px;
+      border-radius: 10px;
+      font-family: inherit;
+      resize: vertical;
     }
 
     .typing {
       display: inline-block;
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
+      width: 6px;
+      height: 6px;
+      background: var(--text-secondary);
       border-radius: 50%;
-      animation: blink 1s infinite;
+      animation: blink 1.2s infinite;
       margin: 0 2px;
     }
 
     @keyframes blink {
-      0%, 100% { opacity: 0.2; }
+      0%, 100% { opacity: 0.3; }
       50% { opacity: 1; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>NEXUS // CHAT</h1>
+    <h1>Chat</h1>
     <div class="header-controls">
-      <button id="theme-toggle">LIGHT</button>
-      <button id="export-btn">EXPORT</button>
+      <button id="theme-toggle">Dark</button>
+      <button id="export-btn">Export</button>
     </div>
   </header>
 
@@ -239,26 +280,26 @@
       <button data-prompt="Explain quantum computing simply">Quantum computing</button>
       <button data-prompt="Write a short poem about AI">Poem about AI</button>
       <button data-prompt="Give me 5 startup ideas">Startup ideas</button>
-      <button data-prompt="How does the internet work?">How internet works</button>
+      <button data-prompt="How does the internet work?">How the internet works</button>
     </div>
 
     <div class="chat-box">
-      <textarea id="message" placeholder="Type your message..."></textarea>
+      <textarea id="message" placeholder="Message..."></textarea>
       <div>
-        <button id="send">SEND</button>
-        <button id="voice-btn">🎤 VOICE</button>
-        <button id="new-chat" class="extra-btn">NEW CHAT</button>
-        <button id="clear-history" class="extra-btn">CLEAR HISTORY</button>
+        <button id="send">Send</button>
+        <button id="voice-btn" class="secondary">Voice</button>
+        <button id="new-chat" class="secondary">New</button>
+        <button id="clear-history" class="secondary">Clear history</button>
       </div>
     </div>
 
     <div class="settings">
-      <strong>System Prompt</strong>
+      <strong>System prompt</strong>
       <textarea id="system-prompt">You are a helpful assistant.</textarea>
     </div>
 
     <div id="history">
-      <h3>HISTORY</h3>
+      <h3>History</h3>
       <div id="history-list"></div>
     </div>
   </main>
