@@ -4,7 +4,6 @@ const sendBtn = document.getElementById('send');
 const newChatBtn = document.getElementById('new-chat');
 const historyList = document.getElementById('history-list');
 
-const API_KEY = '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'; // ← keep your key
 const MODEL = 'openrouter/free';
 
 let currentChat = [];
@@ -54,11 +53,12 @@ function addMessage(text, type, save = true) {
 }
 
 async function getReply(userText) {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const res = await fetch('frosty-cherry-5715.tuomashiljanen.workers.dev
+', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`
+      'Content-Type': 'application/json'
+    
     },
     body: JSON.stringify({
       model: MODEL,
