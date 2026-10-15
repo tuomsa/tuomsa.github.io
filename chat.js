@@ -5,7 +5,7 @@ const newChatBtn = document.getElementById('new-chat');
 const historyList = document.getElementById('history-list');
 
 // ← replace with your Cloudflare Worker URL
-const WORKER_URL = 'https://YOUR-WORKER-NAME.your-subdomain.workers.dev';
+const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
 
 const MODEL = 'openrouter/free';
 
