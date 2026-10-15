@@ -1,12 +1,15 @@
-const messages = document.getElementById('messages');
+const messagesEl = document.getElementById('messages');
 const input = document.getElementById('message');
 const sendBtn = document.getElementById('send');
 const newChatBtn = document.getElementById('new-chat');
+const clearHistoryBtn = document.getElementById('clear-history');
 const historyList = document.getElementById('history-list');
+const systemPromptEl = document.getElementById('system-prompt');
+const themeToggle = document.getElementById('theme-toggle');
+const exportBtn = document.getElementById('export-btn');
+const voiceBtn = document.getElementById('voice-btn');
 
-// ← replace with your Cloudflare Worker URL
 const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
-
 const MODEL = 'openrouter/free';
 
 let currentChat = [];
@@ -19,23 +22,23 @@ function saveHistory() {
 
 function renderHistory() {
   historyList.innerHTML = '';
-  if (allChats.length === 0) {
-    historyList.innerHTML = '<p style="color:#888;font-size:0.9rem;">No past chats yet</p>';
+  if (!allChats.length) {
+    historyList.innerHTML = '<p style="color:#888;font-size:0.85rem;">No past chats</p>';
     return;
   }
   [...allChats].reverse().forEach((chat, i) => {
     const div = document.createElement('div');
     div.className = 'history-item';
-    const preview = chat[0]?.content?.slice(0, 50) || 'Empty chat';
-    div.textContent = preview + (preview.length >= 50 ? '…' : '');
+    const preview = chat.find(m => m.role === 'user')?.content?.slice(0, 60) || 'Chat';
+    div.textContent = preview + (preview.length >= 60 ? '…' : '');
     div.onclick = () => loadChat(allChats.length - 1 - i);
     historyList.appendChild(div);
   });
 }
 
 function loadChat(index) {
-  currentChat = allChats[index] || [];
-  messages.innerHTML = '';
+  currentChat = JSON.parse(JSON.stringify(allChats[index] || []));
+  messagesEl.innerHTML = '';
   currentChat.forEach(msg => {
     addMessage(msg.content, msg.role === 'user' ? 'user' : 'bot', false);
   });
@@ -45,8 +48,17 @@ function addMessage(text, type, save = true) {
   const div = document.createElement('div');
   div.className = `msg ${type}`;
   div.textContent = text;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
+
+  if (type === 'bot') {
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = 'Copy';
+    copyBtn.onclick = () => navigator.clipboard.writeText(text);
+    div.appendChild(copyBtn);
+  }
+
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 
   if (save) {
     currentChat.push({ role: type === 'user' ? 'user' : 'assistant', content: text });
@@ -54,29 +66,56 @@ function addMessage(text, type, save = true) {
   return div;
 }
 
-async function getReply(userText) {
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing';
+  div.innerHTML = '<span class="typing"></span><span class="typing"></span><span class="typing"></span>';
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return div;
+}
+
+async function getReplyStream(userText, onChunk) {
   const res = await fetch(WORKER_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: MODEL,
+      stream: true,
       messages: [
-        { role: 'system', content: 'You are a helpful assistant.' },
-        ...currentChat.slice(-10),
+        { role: 'system', content: systemPromptEl.value || 'You are a helpful assistant.' },
+        ...currentChat.slice(-12),
         { role: 'user', content: userText }
       ]
     })
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err || 'API error');
-  }
+  if (!res.ok) throw new Error(await res.text());
 
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || 'No reply';
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let full = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const chunk = decoder.decode(value);
+    const lines = chunk.split('\n').filter(l => l.startsWith('data: '));
+    for (const line of lines) {
+      const data = line.slice(6);
+      if (data === '[DONE]') continue;
+      try {
+        const json = JSON.parse(data);
+        const content = json.choices?.[0]?.delta?.content || '';
+        if (content) {
+          full += content;
+          onChunk(full);
+        }
+      } catch {}
+    }
+  }
+  return full;
 }
 
 async function handleSend() {
@@ -88,22 +127,36 @@ async function handleSend() {
   input.disabled = true;
   sendBtn.disabled = true;
 
-  const thinking = addMessage('Thinking...', 'bot', false);
+  const typing = showTyping();
+  let botDiv = null;
 
   try {
-    const reply = await getReply(text);
-    thinking.textContent = reply;
-    currentChat.push({ role: 'assistant', content: reply });
+    const reply = await getReplyStream(text, (partial) => {
+      if (!botDiv) {
+        typing.remove();
+        botDiv = addMessage(partial, 'bot', false);
+      } else {
+        botDiv.firstChild.textContent = partial;
+      }
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
 
-    if (currentChat.length === 2) {
-      allChats.push([...currentChat]);
-    } else {
-      allChats[allChats.length - 1] = [...currentChat];
+    if (botDiv) {
+      currentChat.push({ role: 'assistant', content: reply });
     }
-    saveHistory();
+
+    if (currentChat.length >= 2) {
+      const last = allChats[allChats.length - 1];
+      if (last && last.length === currentChat.length - 2) {
+        allChats[allChats.length - 1] = [...currentChat];
+      } else {
+        allChats.push([...currentChat]);
+      }
+      saveHistory();
+    }
   } catch (err) {
-    thinking.textContent = 'Error: ' + (err.message || 'Something went wrong');
-    console.error(err);
+    typing.remove();
+    addMessage('Error: ' + err.message, 'bot', false);
   }
 
   input.disabled = false;
@@ -113,13 +166,71 @@ async function handleSend() {
 
 function startNewChat() {
   currentChat = [];
-  messages.innerHTML = '';
-  input.value = '';
+  messagesEl.innerHTML = '';
   input.focus();
 }
 
-sendBtn.addEventListener('click', handleSend);
-newChatBtn.addEventListener('click', startNewChat);
+function clearAllHistory() {
+  if (confirm('Clear all chat history?')) {
+    allChats = [];
+    localStorage.removeItem('chatHistory');
+    renderHistory();
+    startNewChat();
+  }
+}
+
+function exportChat() {
+  if (!currentChat.length) return alert('Nothing to export');
+  const text = currentChat.map(m => `${m.role === 'user' ? 'You' : 'Bot'}: ${m.content}`).join('\n\n');
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'chat-export.txt';
+  a.click();
+}
+
+// Voice input
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SpeechRecognition) {
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  voiceBtn.onclick = () => {
+    recognition.start();
+    voiceBtn.textContent = 'Listening...';
+  };
+
+  recognition.onresult = (e) => {
+    input.value = e.results[0][0].transcript;
+    voiceBtn.textContent = '🎤 VOICE';
+  };
+
+  recognition.onend = () => {
+    voiceBtn.textContent = '🎤 VOICE';
+  };
+} else {
+  voiceBtn.style.display = 'none';
+}
+
+// Suggested prompts
+document.querySelectorAll('.suggestions button').forEach(btn => {
+  btn.onclick = () => {
+    input.value = btn.dataset.prompt;
+    input.focus();
+  };
+});
+
+// Theme toggle
+themeToggle.onclick = () => {
+  document.body.classList.toggle('light');
+  themeToggle.textContent = document.body.classList.contains('light') ? 'DARK' : 'LIGHT';
+};
+
+sendBtn.onclick = handleSend;
+newChatBtn.onclick = startNewChat;
+clearHistoryBtn.onclick = clearAllHistory;
+exportBtn.onclick = exportChat;
 
 input.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
