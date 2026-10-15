@@ -274,11 +274,110 @@
   </header>
 
   <main>
-    <div class="hero">
-    <img src="https://placehold.co/144x144/0071e3/ffffff?text=AI" alt="Assistant">
-    <h2>How can I help?</h2>
-    <p>Ask me anything</p>
-  </div>
+   Here are some cooler names for the system prompt field:
+
+    Personality
+    Tone
+    Behavior
+    Instructions
+    Role
+    Style
+    Persona
+    Mood
+    Character
+    How should I act?
+
+Personality or Persona usually feel the most natural.
+
+Want me to update the label to one of these?
+
+Which part can i change that
+
+In your index.html, find this part:
+
+<div class="settings">
+  <strong>System prompt</strong>
+  <textarea id="system-prompt">You are a helpful assistant.</textarea>
+</div>
+
+Change the text inside the <strong> tag. For example:
+
+<strong>Personality</strong>
+
+or
+
+<strong>Persona</strong>
+
+That’s the only place you need to edit. The functionality stays the same.
+
+NIce. Lets then add like a header on top of the chatting window or like a hero place for an image?
+
+Here’s an updated version with a clean hero section above the chat (image placeholder + title + short subtitle).
+Add this CSS (inside the existing <style> in index.html)
+
+.hero {
+  text-align: center;
+  padding: 2rem 1rem 1rem;
+}
+
+.hero img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
+}
+
+.hero h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.3rem;
+}
+
+.hero p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+
+
+<main>
+<div class="hero">
+  <img src="rqeZy.jpg" alt="Hero" style="width:100%; max-height:180px; object-fit:cover; border-radius:16px; margin-bottom:1rem;">
+  <h2>How can I help?</h2>
+  <p>Ask me anything</p>
+</div>
+
+  <div id="messages"></div>
+  <!-- rest of your content -->
+</main>
+
+Tips
+
+    Replace the src with your own image URL if you have one.
+    You can change the title and subtitle text freely.
+    For a real image, upload it to your GitHub repo and use a relative path like src="avatar.png".
+
+Want a version without the circular image, or with a wider banner-style hero instead?
+
+can u create an image there to put in the hero that fits it nicely like wide
+Worked for 22s
+
+Here's a calm, wide hero image that fits the quiet modern style:
+Generated image
+How to use it
+
+    Download the image above
+    Upload it to your GitHub repo (name it hero.jpg)
+    Replace the old hero HTML with this:
+
+<div class="hero">
+  <img src="hero.jpg" alt="Hero" style="width:100%; max-height:180px; object-fit:cover; border-radius:16px; margin-bottom:1rem;">
+  <h2>How can I help?</h2>
+  <p>Ask me anything</p>
+</div>
     <div id="messages"></div>
 
     <div class="suggestions">
