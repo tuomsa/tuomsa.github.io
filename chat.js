@@ -332,7 +332,13 @@ stopTalkingBtn.onclick = () => {
   if (window.speechSynthesis) speechSynthesis.cancel();
 };
 
-// Mode buttons
+// Mode buttons with active state
+function setActiveMode(activeBtn) {
+  tonyModeBtn.classList.remove('active');
+  paulieModeBtn.classList.remove('active');
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
 tonyModeBtn.onclick = () => {
   currentLang = 'en-US';
   langToggle.textContent = 'Lang: EN';
@@ -342,6 +348,7 @@ tonyModeBtn.onclick = () => {
   voiceReplyToggle.textContent = 'Voice replies: On';
 
   currentVoiceId = TONY_VOICE_ID;
+  setActiveMode(tonyModeBtn);
 
   systemPromptEl.value = `Youre literally Tony Soprano from Sopranos TV show and you speak like him.
 U also speak like a human so avoid all sorts of ## and ** to make it seem more human!
@@ -357,6 +364,7 @@ paulieModeBtn.onclick = () => {
   voiceReplyToggle.textContent = 'Voice replies: On';
 
   currentVoiceId = PAULIE_VOICE_ID;
+  setActiveMode(paulieModeBtn);
 
   systemPromptEl.value = `You are Paulie "Walnut" Gualtieri from The Sopranos. Speak in his rough, straightforward, slightly paranoid style. Keep answers short, under 70 words, and avoid markdown.`;
 };
