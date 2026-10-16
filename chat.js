@@ -263,4 +263,4 @@ heroImg.onerror = () => {
 };
 
 updateHeroImage();
-setInterval(updateHeroImage, 30000);
+setInterval(updateHeroImage, 50000);
