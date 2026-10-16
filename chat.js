@@ -83,14 +83,11 @@ function showTyping() {
 
 function speak(text) {
   if (!window.speechSynthesis || !voiceRepliesEnabled) return;
-  
   speechSynthesis.cancel();
-  
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = currentLang;
   utterance.rate = 1;
   utterance.pitch = 1;
-  
   speechSynthesis.speak(utterance);
 }
 
@@ -207,7 +204,7 @@ function exportChat() {
   a.click();
 }
 
-// Voice input with language switch
+// Voice input
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let isListening = false;
@@ -231,12 +228,10 @@ if (SpeechRecognition) {
 
   voiceBtn.onclick = () => {
     if (!recognition) return;
-
     if (isListening) {
       recognition.stop();
       return;
     }
-
     recognition.lang = currentLang;
     try {
       recognition.start();
@@ -273,7 +268,6 @@ if (SpeechRecognition) {
     voiceBtn.textContent = 'Voice';
     voiceBtn.style.background = '';
     voiceBtn.style.color = '';
-
     if (e.error === 'not-allowed') {
       alert('Microphone blocked. On phone: Settings → Site permissions → Microphone → Allow.');
     }
@@ -294,16 +288,14 @@ langToggle.onclick = () => {
   if (recognition) recognition.lang = currentLang;
 };
 
-// Voice reply toggle + stop talking
+// Voice replies + stop
 voiceReplyToggle.onclick = () => {
   voiceRepliesEnabled = !voiceRepliesEnabled;
   voiceReplyToggle.textContent = voiceRepliesEnabled ? 'Voice replies: On' : 'Voice replies: Off';
 };
 
 stopTalkingBtn.onclick = () => {
-  if (window.speechSynthesis) {
-    speechSynthesis.cancel();
-  }
+  if (window.speechSynthesis) speechSynthesis.cancel();
 };
 
 document.querySelectorAll('.suggestions button').forEach(btn => {
@@ -332,7 +324,7 @@ input.addEventListener('keydown', (e) => {
 
 renderHistory();
 
-// Auto-updating hero image (random dogs)
+// Random dog hero images
 const heroImg = document.getElementById('hero-ai');
 
 async function updateHeroImage() {
