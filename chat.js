@@ -14,11 +14,13 @@ const langToggle = document.getElementById('lang-toggle');
 
 const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
 const MODEL = 'openrouter/free';
+const TONY_VOICE_ID = 'b2d381ae801241fc9a1a5e181c9f7c1d';
 
 let currentChat = [];
 let allChats = JSON.parse(localStorage.getItem('chatHistory') || '[]');
 let voiceRepliesEnabled = false;
 let currentLang = 'fi-FI';
+let currentAudio = null;
 
 function saveHistory() {
   localStorage.setItem('chatHistory', JSON.stringify(allChats));
@@ -81,14 +83,41 @@ function showTyping() {
   return div;
 }
 
-function speak(text) {
-  if (!window.speechSynthesis || !voiceRepliesEnabled) return;
-  speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = currentLang;
-  utterance.rate = 1;
-  utterance.pitch = 1;
-  speechSynthesis.speak(utterance);
+async function speak(text) {
+  if (!voiceRepliesEnabled || !text) return;
+
+  // Stop any previous audio
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+
+  try {
+    const res = await fetch(WORKER_URL + '/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'tts',
+        text: text.slice(0, 500), // limit length for free tier
+        reference_id: TONY_VOICE_ID
+      })
+    });
+
+    if (!res.ok) throw new Error('TTS failed');
+
+    const blob = await res.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    currentAudio = new Audio(audioUrl);
+    currentAudio.play();
+  } catch (err) {
+    console.log('Fish Audio failed, falling back to browser speech', err);
+    if (window.speechSynthesis) {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = currentLang;
+      speechSynthesis.speak(utterance);
+    }
+  }
 }
 
 async function getReplyStream(userText, onChunk) {
@@ -288,13 +317,17 @@ langToggle.onclick = () => {
   if (recognition) recognition.lang = currentLang;
 };
 
-// Voice replies + stop
+// Voice replies + stop talking
 voiceReplyToggle.onclick = () => {
   voiceRepliesEnabled = !voiceRepliesEnabled;
   voiceReplyToggle.textContent = voiceRepliesEnabled ? 'Voice replies: On' : 'Voice replies: Off';
 };
 
 stopTalkingBtn.onclick = () => {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
   if (window.speechSynthesis) speechSynthesis.cancel();
 };
 
