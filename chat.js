@@ -188,24 +188,54 @@ function exportChat() {
   a.click();
 }
 
+// Improved voice input
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+
 if (SpeechRecognition) {
-  const recognition = new SpeechRecognition();
+  recognition = new SpeechRecognition();
   recognition.continuous = false;
   recognition.interimResults = false;
+  recognition.lang = 'fi-FI'; // change to 'en-US' for English
 
   voiceBtn.onclick = () => {
+    if (isListening) {
+      recognition.stop();
+      return;
+    }
     recognition.start();
-    voiceBtn.textContent = 'Listening…';
   };
 
-  recognition.onresult = (e) => {
-    input.value = e.results[0][0].transcript;
-    voiceBtn.textContent = 'Voice';
+  recognition.onstart = () => {
+    isListening = true;
+    voiceBtn.textContent = 'Stop';
+    voiceBtn.style.background = '#ff3b30';
+    voiceBtn.style.color = '#fff';
   };
 
   recognition.onend = () => {
+    isListening = false;
     voiceBtn.textContent = 'Voice';
+    voiceBtn.style.background = '';
+    voiceBtn.style.color = '';
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    input.value = transcript;
+    voiceBtn.textContent = 'Voice';
+  };
+
+  recognition.onerror = (e) => {
+    console.log('Speech error:', e.error);
+    isListening = false;
+    voiceBtn.textContent = 'Voice';
+    voiceBtn.style.background = '';
+    voiceBtn.style.color = '';
+    if (e.error === 'not-allowed') {
+      alert('Microphone permission denied. Please allow mic access.');
+    }
   };
 } else {
   voiceBtn.style.display = 'none';
@@ -254,4 +284,4 @@ async function updateHeroImage() {
 }
 
 updateHeroImage();
-setInterval(updateHeroImage, 10000);
+setInterval(updateHeroImage, 30000);
