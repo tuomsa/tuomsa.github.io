@@ -237,30 +237,21 @@ input.addEventListener('keydown', (e) => {
 
 renderHistory();
 
-// Auto-updating hero image (simpler AI prompts + fallback)
+// Auto-updating hero image (random dogs)
 const heroImg = document.getElementById('hero-ai');
 
-const prompts = [
-  "blonde chihuahua in a park",
-  "blonde chihuahua on a sofa",
-  "blonde chihuahua outside",
-  "blonde chihuahua wearing a hat",
-  "blonde chihuahua in a garden",
-  "blonde chihuahua sleeping",
-  "blonde chihuahua playing",
-  "blonde chihuahua looking out window"
-];
-
-function updateHeroImage() {
-  const prompt = prompts[Math.floor(Math.random() * prompts.length)];
-  const encoded = encodeURIComponent(prompt);
-  heroImg.src = `https://image.pollinations.ai/prompt/${encoded}?nologo=true&seed=${Date.now()}`;
+async function updateHeroImage() {
+  try {
+    const res = await fetch('https://dog.ceo/api/breeds/image/random');
+    const data = await res.json();
+    if (data.status === 'success') {
+      heroImg.src = data.message;
+    }
+  } catch (err) {
+    console.log('Failed to load dog image', err);
+    heroImg.src = `https://picsum.photos/1200/600?random=${Date.now()}`;
+  }
 }
 
-heroImg.onerror = () => {
-  console.log("AI image failed, using random photo");
-  heroImg.src = `https://picsum.photos/1200/600?random=${Date.now()}`;
-};
-
 updateHeroImage();
-setInterval(updateHeroImage, 50000);
+setInterval(updateHeroImage, 30000);
