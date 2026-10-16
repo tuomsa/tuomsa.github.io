@@ -82,45 +82,46 @@
       gap: 1rem;
     }
 
-    .hero {
-      position: relative;
-      text-align: center;
-      border-radius: 16px;
-      overflow: hidden;
-      height: 140px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-    }
+   .hero {
+  position: relative;
+  text-align: center;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: #333;
+}
 
-    .hero img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 0;
-    }
+.hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
 
-    .hero h2,
-    .hero p {
-      position: relative;
-      z-index: 1;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    }
+.hero h2,
+.hero p {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+}
 
-    .hero h2 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 0.2rem;
-    }
+.hero h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
 
-    .hero p {
-      font-size: 0.9rem;
-      opacity: 0.95;
-    }
+.hero p {
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
 
     #messages {
       flex: 1;
@@ -322,10 +323,10 @@
 
   <main>
     <div class="hero">
-      <img src="hero.jpg" alt="Hero">
-      <h2>Miten voimme auttaa?</h2>
-      <p>Kysy mitä vain!</p>
-    </div>
+  <img id="hero-ai" src="" alt="Hero">
+  <h2>Miten voimme auttaa?</h2>
+  <p>Kysy mitä vain!</p>
+</div>
 
     <div id="messages"></div>
 
