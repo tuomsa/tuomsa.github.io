@@ -237,26 +237,16 @@ input.addEventListener('keydown', (e) => {
 
 renderHistory();
 
+// Auto-updating hero image (Picsum - reliable free random photos)
 const heroImg = document.getElementById('hero-ai');
 
-const prompts = [
-  "cute blonde long haired chihuahua playing fetch in a sunny park",
-  "cute blonde long haired chihuahua sitting indoors on a sofa looking cozy",
-  "cute blonde long haired chihuahua running outside in autumn leaves",
-  "cute blonde long haired chihuahua wearing a tiny hat indoors",
-  "cute blonde long haired chihuahua exploring a garden",
-  "cute blonde long haired chihuahua sleeping in a soft bed",
-  "cute blonde long haired chihuahua jumping for a ball outdoors",
-  "cute blonde long haired chihuahua looking out a window"
-];
-
 function updateHeroImage() {
-  const prompt = prompts[Math.floor(Math.random() * prompts.length)];
-  const encoded = encodeURIComponent(prompt);
-  // Added model + better params to avoid the logo
-  heroImg.src = `https://image.pollinations.ai/prompt/${encoded}?width=1200&height=600&nologo=true&enhance=true&model=flux&seed=${Date.now()}`;
+  heroImg.src = `https://picsum.photos/1200/600?random=${Date.now()}`;
 }
 
 heroImg.onerror = () => {
-  heroImg.src = 'hero.jpg'; // fallback to your static image
+  heroImg.src = 'hero.jpg';
 };
+
+updateHeroImage();
+setInterval(updateHeroImage, 30000);
