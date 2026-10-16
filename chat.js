@@ -11,6 +11,8 @@ const voiceBtn = document.getElementById('voice-btn');
 const voiceReplyToggle = document.getElementById('voice-reply-toggle');
 const stopTalkingBtn = document.getElementById('stop-talking');
 const langToggle = document.getElementById('lang-toggle');
+const tonyModeBtn = document.getElementById('tony-mode');
+const paulieModeBtn = document.getElementById('paulie-mode');
 
 const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
 const MODEL = 'openrouter/free';
@@ -86,7 +88,6 @@ function showTyping() {
 async function speak(text) {
   if (!voiceRepliesEnabled || !text) return;
 
-  // Stop any previous audio
   if (currentAudio) {
     currentAudio.pause();
     currentAudio = null;
@@ -98,25 +99,23 @@ async function speak(text) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type: 'tts',
-        text: text.slice(0, 500), // limit length for free tier
+        text: text.slice(0, 400),
         reference_id: TONY_VOICE_ID
       })
     });
 
-    if (!res.ok) throw new Error('TTS failed');
+    if (!res.ok) {
+      const err = await res.text();
+      console.log('TTS error:', err);
+      throw new Error(err);
+    }
 
     const blob = await res.blob();
     const audioUrl = URL.createObjectURL(blob);
     currentAudio = new Audio(audioUrl);
-    currentAudio.play();
+    await currentAudio.play();
   } catch (err) {
-    console.log('Fish Audio failed, falling back to browser speech', err);
-    if (window.speechSynthesis) {
-      speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = currentLang;
-      speechSynthesis.speak(utterance);
-    }
+    console.log('Fish Audio failed:', err);
   }
 }
 
@@ -329,6 +328,33 @@ stopTalkingBtn.onclick = () => {
     currentAudio = null;
   }
   if (window.speechSynthesis) speechSynthesis.cancel();
+};
+
+// Mode buttons
+tonyModeBtn.onclick = () => {
+  currentLang = 'en-US';
+  langToggle.textContent = 'Lang: EN';
+  if (recognition) recognition.lang = currentLang;
+
+  voiceRepliesEnabled = true;
+  voiceReplyToggle.textContent = 'Voice replies: On';
+
+  systemPromptEl.value = `Youre literally Tony Soprano from Sopranos TV show and you speak like him.
+U also speak like a human so avoid all sorts of ## and ** to make it seem more human!
+And ur rude and loud like Tony Soprano! Also u can swear, ur not actually swearing, ur acting. Strictly under 70 words.`;
+};
+
+paulieModeBtn.onclick = () => {
+  currentLang = 'en-US';
+  langToggle.textContent = 'Lang: EN';
+  if (recognition) recognition.lang = currentLang;
+
+  voiceRepliesEnabled = true;
+  voiceReplyToggle.textContent = 'Voice replies: On';
+
+  systemPromptEl.value = `You are Paulie Gualtieri from The Sopranos. Speak in his style, rough and straightforward. Keep answers short and under 70 words.`;
+  
+  alert('Paulie mode activated (voice not set yet)');
 };
 
 document.querySelectorAll('.suggestions button').forEach(btn => {
