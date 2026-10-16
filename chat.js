@@ -8,12 +8,14 @@ const systemPromptEl = document.getElementById('system-prompt');
 const themeToggle = document.getElementById('theme-toggle');
 const exportBtn = document.getElementById('export-btn');
 const voiceBtn = document.getElementById('voice-btn');
+const voiceReplyToggle = document.getElementById('voice-reply-toggle');
 
 const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
 const MODEL = 'openrouter/free';
 
 let currentChat = [];
 let allChats = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+let voiceRepliesEnabled = false;
 
 function saveHistory() {
   localStorage.setItem('chatHistory', JSON.stringify(allChats));
@@ -74,6 +76,19 @@ function showTyping() {
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   return div;
+}
+
+function speak(text) {
+  if (!window.speechSynthesis || !voiceRepliesEnabled) return;
+  
+  speechSynthesis.cancel();
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'fi-FI'; // change to 'en-US' for English
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  
+  speechSynthesis.speak(utterance);
 }
 
 async function getReplyStream(userText, onChunk) {
@@ -143,6 +158,7 @@ async function handleSend() {
 
     if (botDiv) {
       currentChat.push({ role: 'assistant', content: reply });
+      speak(reply);
     }
 
     if (currentChat.length >= 2) {
@@ -188,10 +204,23 @@ function exportChat() {
   a.click();
 }
 
-// Improved voice input
+// Smarter voice input
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let isListening = false;
+
+function updateVoiceButton() {
+  if (!SpeechRecognition) {
+    voiceBtn.textContent = 'Voice (not supported)';
+    voiceBtn.disabled = true;
+    voiceBtn.title = 'Speech recognition not supported in this browser. Try Chrome or Edge.';
+    return;
+  }
+
+  voiceBtn.disabled = false;
+  voiceBtn.textContent = 'Voice';
+  voiceBtn.title = 'Click to start voice input';
+}
 
 if (SpeechRecognition) {
   recognition = new SpeechRecognition();
@@ -200,11 +229,19 @@ if (SpeechRecognition) {
   recognition.lang = 'fi-FI'; // change to 'en-US' for English
 
   voiceBtn.onclick = () => {
+    if (!recognition) return;
+
     if (isListening) {
       recognition.stop();
       return;
     }
-    recognition.start();
+
+    try {
+      recognition.start();
+    } catch (err) {
+      console.log('Could not start recognition:', err);
+      alert('Could not start microphone. Make sure you allowed mic access.');
+    }
   };
 
   recognition.onstart = () => {
@@ -224,7 +261,6 @@ if (SpeechRecognition) {
   recognition.onresult = (e) => {
     const transcript = e.results[0][0].transcript;
     input.value = transcript;
-    voiceBtn.textContent = 'Voice';
   };
 
   recognition.onerror = (e) => {
@@ -233,13 +269,20 @@ if (SpeechRecognition) {
     voiceBtn.textContent = 'Voice';
     voiceBtn.style.background = '';
     voiceBtn.style.color = '';
+
     if (e.error === 'not-allowed') {
-      alert('Microphone permission denied. Please allow mic access.');
+      alert('Microphone permission denied. Please allow microphone access in your browser settings.');
     }
   };
-} else {
-  voiceBtn.style.display = 'none';
 }
+
+updateVoiceButton();
+
+// Voice reply toggle
+voiceReplyToggle.onclick = () => {
+  voiceRepliesEnabled = !voiceRepliesEnabled;
+  voiceReplyToggle.textContent = voiceRepliesEnabled ? 'Voice replies: On' : 'Voice replies: Off';
+};
 
 document.querySelectorAll('.suggestions button').forEach(btn => {
   btn.onclick = () => {
