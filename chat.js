@@ -240,14 +240,14 @@ renderHistory();
 const heroImg = document.getElementById('hero-ai');
 
 const prompts = [
-  "cute small blonde longhair chihuhahua named Hero playing fetch in a sunny park",
-  "cute small blonde longhair chihuhahua named Hero sitting indoors on a sofa looking cozy",
-  "cute small blonde longhair chihuhahua named Hero running outside in autumn leaves",
-  "cute small blonde longhair chihuhahua named Hero wearing a tiny hat indoors",
-  "cute small blonde longhair chihuhahua named Hero exploring a garden",
-  "cute small blonde longhair chihuhahua named Hero sleeping in a soft bed",
-  "cute small blonde longhair chihuhahua named Hero jumping for a ball outdoors",
-  "cute small blonde longhair chihuhahua named Hero looking out a window"
+  "cute blonde long haired chihuahua playing fetch in a sunny park",
+  "cute blonde long haired chihuahua sitting indoors on a sofa looking cozy",
+  "cute blonde long haired chihuahua running outside in autumn leaves",
+  "cute blonde long haired chihuahua wearing a tiny hat indoors",
+  "cute blonde long haired chihuahua exploring a garden",
+  "cute blonde long haired chihuahua sleeping in a soft bed",
+  "cute blonde long haired chihuahua jumping for a ball outdoors",
+  "cute blonde long haired chihuahua looking out a window"
 ];
 
 function updateHeroImage() {
