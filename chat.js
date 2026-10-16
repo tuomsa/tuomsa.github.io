@@ -237,15 +237,29 @@ input.addEventListener('keydown', (e) => {
 
 renderHistory();
 
-// Auto-updating hero image (Picsum - reliable free random photos)
+// Auto-updating hero image (tries AI, falls back to random photos)
 const heroImg = document.getElementById('hero-ai');
 
+const prompts = [
+  "cute blonde long haired chihuahua playing fetch in a sunny park",
+  "cute blonde long haired chihuahua sitting indoors on a sofa looking cozy",
+  "cute blonde long haired chihuahua running outside in autumn leaves",
+  "cute blonde long haired chihuahua wearing a tiny hat indoors",
+  "cute blonde long haired chihuahua exploring a garden",
+  "cute blonde long haired chihuahua sleeping in a soft bed",
+  "cute blonde long haired chihuahua jumping for a ball outdoors",
+  "cute blonde long haired chihuahua looking out a window"
+];
+
 function updateHeroImage() {
-  heroImg.src = `https://picsum.photos/1200/600?random=${Date.now()}`;
+  const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+  const encoded = encodeURIComponent(prompt);
+  heroImg.src = `https://image.pollinations.ai/prompt/${encoded}?width=1200&height=600&nologo=true&seed=${Date.now()}`;
 }
 
 heroImg.onerror = () => {
-  heroImg.src = 'hero.jpg';
+  console.log("AI image failed, using random photo");
+  heroImg.src = `https://picsum.photos/1200/600?random=${Date.now()}`;
 };
 
 updateHeroImage();
