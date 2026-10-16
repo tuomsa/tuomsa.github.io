@@ -254,4 +254,4 @@ async function updateHeroImage() {
 }
 
 updateHeroImage();
-setInterval(updateHeroImage, 30000);
+setInterval(updateHeroImage, 10000);
