@@ -10,6 +10,7 @@ const exportBtn = document.getElementById('export-btn');
 const voiceBtn = document.getElementById('voice-btn');
 const voiceReplyToggle = document.getElementById('voice-reply-toggle');
 const stopTalkingBtn = document.getElementById('stop-talking');
+const langToggle = document.getElementById('lang-toggle');
 
 const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
 const MODEL = 'openrouter/free';
@@ -17,6 +18,7 @@ const MODEL = 'openrouter/free';
 let currentChat = [];
 let allChats = JSON.parse(localStorage.getItem('chatHistory') || '[]');
 let voiceRepliesEnabled = false;
+let currentLang = 'fi-FI';
 
 function saveHistory() {
   localStorage.setItem('chatHistory', JSON.stringify(allChats));
@@ -85,7 +87,7 @@ function speak(text) {
   speechSynthesis.cancel();
   
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'fi-FI'; // change to 'en-US' for English
+  utterance.lang = currentLang;
   utterance.rate = 1;
   utterance.pitch = 1;
   
@@ -205,7 +207,7 @@ function exportChat() {
   a.click();
 }
 
-// Voice input
+// Voice input with language switch
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let isListening = false;
@@ -214,7 +216,6 @@ function updateVoiceButton() {
   if (!SpeechRecognition) {
     voiceBtn.textContent = 'Voice (not supported)';
     voiceBtn.disabled = true;
-    voiceBtn.title = 'Try Chrome or Edge';
     return;
   }
   voiceBtn.disabled = false;
@@ -224,8 +225,9 @@ function updateVoiceButton() {
 if (SpeechRecognition) {
   recognition = new SpeechRecognition();
   recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition.lang = 'fi-FI';
+  recognition.interimResults = true;
+  recognition.lang = currentLang;
+  recognition.maxAlternatives = 3;
 
   voiceBtn.onclick = () => {
     if (!recognition) return;
@@ -235,10 +237,11 @@ if (SpeechRecognition) {
       return;
     }
 
+    recognition.lang = currentLang;
     try {
       recognition.start();
     } catch (err) {
-      alert('Could not start microphone. Make sure you allowed mic access and are using HTTPS.');
+      alert('Could not start microphone. Allow mic access and use Chrome/Edge on HTTPS.');
     }
   };
 
@@ -257,7 +260,11 @@ if (SpeechRecognition) {
   };
 
   recognition.onresult = (e) => {
-    input.value = e.results[0][0].transcript;
+    let transcript = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    input.value = transcript;
   };
 
   recognition.onerror = (e) => {
@@ -268,12 +275,24 @@ if (SpeechRecognition) {
     voiceBtn.style.color = '';
 
     if (e.error === 'not-allowed') {
-      alert('Microphone blocked. On phone: check browser settings and allow microphone for this site.');
+      alert('Microphone blocked. On phone: Settings → Site permissions → Microphone → Allow.');
     }
   };
 }
 
 updateVoiceButton();
+
+// Language switch
+langToggle.onclick = () => {
+  if (currentLang === 'fi-FI') {
+    currentLang = 'en-US';
+    langToggle.textContent = 'Lang: EN';
+  } else {
+    currentLang = 'fi-FI';
+    langToggle.textContent = 'Lang: FI';
+  }
+  if (recognition) recognition.lang = currentLang;
+};
 
 // Voice reply toggle + stop talking
 voiceReplyToggle.onclick = () => {
