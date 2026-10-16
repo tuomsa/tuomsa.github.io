@@ -146,7 +146,6 @@ async function handleSend() {
     }
 
     if (currentChat.length >= 2) {
-      const existing = allChats.findIndex(c => c === currentChat);
       if (allChats.length && allChats[allChats.length - 1].length < currentChat.length) {
         allChats[allChats.length - 1] = [...currentChat];
       } else {
