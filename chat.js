@@ -236,3 +236,25 @@ input.addEventListener('keydown', (e) => {
 });
 
 renderHistory();
+
+const heroImg = document.getElementById('hero-ai');
+
+const prompts = [
+  "cute small blonde longhair chihuhahua named Hero playing fetch in a sunny park",
+  "cute small blonde longhair chihuhahua named Hero sitting indoors on a sofa looking cozy",
+  "cute small blonde longhair chihuhahua named Hero running outside in autumn leaves",
+  "cute small blonde longhair chihuhahua named Hero wearing a tiny hat indoors",
+  "cute small blonde longhair chihuhahua named Hero exploring a garden",
+  "cute small blonde longhair chihuhahua named Hero sleeping in a soft bed",
+  "cute small blonde longhair chihuhahua named Hero jumping for a ball outdoors",
+  "cute small blonde longhair chihuhahua named Hero looking out a window"
+];
+
+function updateHeroImage() {
+  const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+  const encoded = encodeURIComponent(prompt);
+  heroImg.src = `https://image.pollinations.ai/prompt/${encoded}?width=1200&height=600&nologo=true&seed=${Date.now()}`;
+}
+
+updateHeroImage();
+setInterval(updateHeroImage, 30000);
