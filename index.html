@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SECRET // HERO // CHAT // v.0.004341</title>
+  <title>Secret Tube Chat Online</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
@@ -87,7 +87,7 @@
       text-align: center;
       border-radius: 16px;
       overflow: hidden;
-      height: 360px;
+      height: 160px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -223,16 +223,21 @@
       border-color: var(--accent);
     }
 
-    .chat-box button, .extra-btn {
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
       margin-top: 0.5rem;
-      margin-right: 0.35rem;
+    }
+
+    .chat-box button, .extra-btn {
       padding: 0.5rem 1rem;
       background: var(--accent);
       border: none;
       color: #fff;
       border-radius: 20px;
       cursor: pointer;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       font-weight: 500;
     }
 
@@ -240,6 +245,17 @@
       background: transparent;
       color: var(--text);
       border: 1px solid var(--border);
+    }
+
+    .chat-box button.danger {
+      background: transparent;
+      color: #ff3b30;
+      border: 1px solid #ff3b30;
+    }
+
+    .chat-box button.small {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.78rem;
     }
 
     .chat-box button.secondary:hover, .extra-btn:hover {
@@ -305,7 +321,7 @@
 </head>
 <body>
   <header>
-    <h1>SECRET // HERO // CHAT // v.0.004341</h1>
+    <h1>Secret Tube Chat ROPOTTI</h1>
     <div class="header-controls">
       <button id="theme-toggle">Dark</button>
       <button id="export-btn">Export</button>
@@ -315,7 +331,7 @@
   <main>
     <div class="hero">
       <img id="hero-ai" src="hero.jpg" alt="Hero">
-      <h2>Miten voin auttaa?</h2>
+      <h2>Miten voimme auttaa?</h2>
       <p>Kysy mitä vain!</p>
     </div>
 
@@ -330,23 +346,28 @@
 
     <div class="chat-box">
       <textarea id="message" placeholder="Message..."></textarea>
-      <div>
+      
+      <div class="button-row">
         <button id="send">Send</button>
         <button id="voice-btn" class="secondary">Voice</button>
-        <button id="voice-reply-toggle" class="secondary">Voice replies: Off</button>
-        <button id="stop-talking" class="secondary">Stop talking</button>
-        <button id="new-chat" class="secondary">New</button>
-        <button id="clear-history" class="secondary">Clear history</button>
+        <button id="lang-toggle" class="secondary small">Lang: FI</button>
+      </div>
+
+      <div class="button-row">
+        <button id="voice-reply-toggle" class="secondary small">Voice replies: Off</button>
+        <button id="stop-talking" class="danger small">Stop talking</button>
+        <button id="new-chat" class="secondary small">New</button>
+        <button id="clear-history" class="secondary small">Clear history</button>
       </div>
     </div>
 
     <div class="settings">
       <strong>Persoonallisuus</strong>
-      <textarea id="system-prompt">You are a helpful and playful advisor and researcher!</textarea>
+      <textarea id="system-prompt">Pretend to be a upbeat and fun researcher and advisor. Only use very human language, get rid of all computer stuff like many ## and so on. Answers should be maximum 100 words so make sure its concise and accurate</textarea>
     </div>
 
     <div id="history">
-      <h3>History (Hero_DataBase_3.223s1)</h3>
+      <h3>Chattaily historia (menee suoraan supolle)</h3>
       <div id="history-list"></div>
     </div>
   </main>
