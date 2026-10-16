@@ -15,7 +15,7 @@ const tonyModeBtn = document.getElementById('tony-mode');
 const paulieModeBtn = document.getElementById('paulie-mode');
 
 const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
-const MODEL = 'openrouter/free';
+const MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
 const TONY_VOICE_ID = 'b2d381ae801241fc9a1a5e181c9f7c1d';
 const PAULIE_VOICE_ID = 'b68a903097064ff4b7f9eaaaa98702a7';
 
