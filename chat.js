@@ -253,8 +253,10 @@ const prompts = [
 function updateHeroImage() {
   const prompt = prompts[Math.floor(Math.random() * prompts.length)];
   const encoded = encodeURIComponent(prompt);
-  heroImg.src = `https://image.pollinations.ai/prompt/${encoded}?width=1200&height=600&nologo=true&seed=${Date.now()}`;
+  // Added model + better params to avoid the logo
+  heroImg.src = `https://image.pollinations.ai/prompt/${encoded}?width=1200&height=600&nologo=true&enhance=true&model=flux&seed=${Date.now()}`;
 }
 
-updateHeroImage();
-setInterval(updateHeroImage, 30000);
+heroImg.onerror = () => {
+  heroImg.src = 'hero.jpg'; // fallback to your static image
+};
