@@ -17,12 +17,14 @@ const paulieModeBtn = document.getElementById('paulie-mode');
 const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
 const MODEL = 'openrouter/free';
 const TONY_VOICE_ID = 'b2d381ae801241fc9a1a5e181c9f7c1d';
+const PAULIE_VOICE_ID = 'b68a903097064ff4b7f9eaaaa98702a7';
 
 let currentChat = [];
 let allChats = JSON.parse(localStorage.getItem('chatHistory') || '[]');
 let voiceRepliesEnabled = false;
 let currentLang = 'fi-FI';
 let currentAudio = null;
+let currentVoiceId = TONY_VOICE_ID;
 
 function saveHistory() {
   localStorage.setItem('chatHistory', JSON.stringify(allChats));
@@ -100,7 +102,7 @@ async function speak(text) {
       body: JSON.stringify({
         type: 'tts',
         text: text.slice(0, 400),
-        reference_id: TONY_VOICE_ID
+        reference_id: currentVoiceId
       })
     });
 
@@ -339,6 +341,8 @@ tonyModeBtn.onclick = () => {
   voiceRepliesEnabled = true;
   voiceReplyToggle.textContent = 'Voice replies: On';
 
+  currentVoiceId = TONY_VOICE_ID;
+
   systemPromptEl.value = `Youre literally Tony Soprano from Sopranos TV show and you speak like him.
 U also speak like a human so avoid all sorts of ## and ** to make it seem more human!
 And ur rude and loud like Tony Soprano! Also u can swear, ur not actually swearing, ur acting. Strictly under 70 words.`;
@@ -352,9 +356,9 @@ paulieModeBtn.onclick = () => {
   voiceRepliesEnabled = true;
   voiceReplyToggle.textContent = 'Voice replies: On';
 
-  systemPromptEl.value = `You are Paulie Gualtieri from The Sopranos. Speak in his style, rough and straightforward. Keep answers short and under 70 words.`;
-  
-  alert('Paulie mode activated (voice not set yet)');
+  currentVoiceId = PAULIE_VOICE_ID;
+
+  systemPromptEl.value = `You are Paulie "Walnut" Gualtieri from The Sopranos. Speak in his rough, straightforward, slightly paranoid style. Keep answers short, under 70 words, and avoid markdown.`;
 };
 
 document.querySelectorAll('.suggestions button').forEach(btn => {
@@ -382,22 +386,3 @@ input.addEventListener('keydown', (e) => {
 });
 
 renderHistory();
-
-// Random dog hero images
-const heroImg = document.getElementById('hero-ai');
-
-async function updateHeroImage() {
-  try {
-    const res = await fetch('https://dog.ceo/api/breeds/image/random');
-    const data = await res.json();
-    if (data.status === 'success') {
-      heroImg.src = data.message;
-    }
-  } catch (err) {
-    console.log('Failed to load dog image', err);
-    heroImg.src = `https://picsum.photos/1200/600?random=${Date.now()}`;
-  }
-}
-
-updateHeroImage();
-setInterval(updateHeroImage, 30000);
