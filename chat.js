@@ -9,6 +9,7 @@ const themeToggle = document.getElementById('theme-toggle');
 const exportBtn = document.getElementById('export-btn');
 const voiceBtn = document.getElementById('voice-btn');
 const voiceReplyToggle = document.getElementById('voice-reply-toggle');
+const stopTalkingBtn = document.getElementById('stop-talking');
 
 const WORKER_URL = 'https://frosty-cherry-5715.tuomashiljanen.workers.dev';
 const MODEL = 'openrouter/free';
@@ -204,7 +205,7 @@ function exportChat() {
   a.click();
 }
 
-// Smarter voice input
+// Voice input
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let isListening = false;
@@ -213,20 +214,18 @@ function updateVoiceButton() {
   if (!SpeechRecognition) {
     voiceBtn.textContent = 'Voice (not supported)';
     voiceBtn.disabled = true;
-    voiceBtn.title = 'Speech recognition not supported in this browser. Try Chrome or Edge.';
+    voiceBtn.title = 'Try Chrome or Edge';
     return;
   }
-
   voiceBtn.disabled = false;
   voiceBtn.textContent = 'Voice';
-  voiceBtn.title = 'Click to start voice input';
 }
 
 if (SpeechRecognition) {
   recognition = new SpeechRecognition();
   recognition.continuous = false;
   recognition.interimResults = false;
-  recognition.lang = 'fi-FI'; // change to 'en-US' for English
+  recognition.lang = 'fi-FI';
 
   voiceBtn.onclick = () => {
     if (!recognition) return;
@@ -239,8 +238,7 @@ if (SpeechRecognition) {
     try {
       recognition.start();
     } catch (err) {
-      console.log('Could not start recognition:', err);
-      alert('Could not start microphone. Make sure you allowed mic access.');
+      alert('Could not start microphone. Make sure you allowed mic access and are using HTTPS.');
     }
   };
 
@@ -259,8 +257,7 @@ if (SpeechRecognition) {
   };
 
   recognition.onresult = (e) => {
-    const transcript = e.results[0][0].transcript;
-    input.value = transcript;
+    input.value = e.results[0][0].transcript;
   };
 
   recognition.onerror = (e) => {
@@ -271,17 +268,23 @@ if (SpeechRecognition) {
     voiceBtn.style.color = '';
 
     if (e.error === 'not-allowed') {
-      alert('Microphone permission denied. Please allow microphone access in your browser settings.');
+      alert('Microphone blocked. On phone: check browser settings and allow microphone for this site.');
     }
   };
 }
 
 updateVoiceButton();
 
-// Voice reply toggle
+// Voice reply toggle + stop talking
 voiceReplyToggle.onclick = () => {
   voiceRepliesEnabled = !voiceRepliesEnabled;
   voiceReplyToggle.textContent = voiceRepliesEnabled ? 'Voice replies: On' : 'Voice replies: Off';
+};
+
+stopTalkingBtn.onclick = () => {
+  if (window.speechSynthesis) {
+    speechSynthesis.cancel();
+  }
 };
 
 document.querySelectorAll('.suggestions button').forEach(btn => {
