@@ -25,6 +25,7 @@ let voiceRepliesEnabled = false;
 let currentLang = 'fi-FI';
 let currentAudio = null;
 let currentVoiceId = TONY_VOICE_ID;
+let audioUnlocked = false;
 
 function saveHistory() {
   localStorage.setItem('chatHistory', JSON.stringify(allChats));
@@ -85,6 +86,14 @@ function showTyping() {
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   return div;
+}
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+  const silent = new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADhAC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjU0AAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRwmHAAAAAAD/+1DEAAAHAAGf9AAAIgAANP8AAABQAAAk4AAAAABJbmZvAAAA');
+  silent.play().then(() => {
+    audioUnlocked = true;
+  }).catch(() => {});
 }
 
 async function speak(text) {
@@ -164,6 +173,7 @@ async function getReplyStream(userText, onChunk) {
 }
 
 async function handleSend() {
+  unlockAudio();
   const text = input.value.trim();
   if (!text) return;
 
@@ -257,6 +267,7 @@ if (SpeechRecognition) {
   recognition.maxAlternatives = 3;
 
   voiceBtn.onclick = () => {
+    unlockAudio();
     if (!recognition) return;
     if (isListening) {
       recognition.stop();
@@ -320,6 +331,7 @@ langToggle.onclick = () => {
 
 // Voice replies + stop talking
 voiceReplyToggle.onclick = () => {
+  unlockAudio();
   voiceRepliesEnabled = !voiceRepliesEnabled;
   voiceReplyToggle.textContent = voiceRepliesEnabled ? 'Voice replies: On' : 'Voice replies: Off';
 };
@@ -340,6 +352,7 @@ function setActiveMode(activeBtn) {
 }
 
 tonyModeBtn.onclick = () => {
+  unlockAudio();
   currentLang = 'en-US';
   langToggle.textContent = 'Lang: EN';
   if (recognition) recognition.lang = currentLang;
@@ -356,6 +369,7 @@ And ur rude and loud like Tony Soprano! Also u can swear, ur not actually sweari
 };
 
 paulieModeBtn.onclick = () => {
+  unlockAudio();
   currentLang = 'en-US';
   langToggle.textContent = 'Lang: EN';
   if (recognition) recognition.lang = currentLang;
@@ -392,5 +406,8 @@ input.addEventListener('keydown', (e) => {
     handleSend();
   }
 });
+
+// Unlock audio on first user interaction
+document.addEventListener('click', unlockAudio, { once: true });
 
 renderHistory();
