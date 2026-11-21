@@ -1,0 +1,10 @@
+# Cloudflare Worker for the Executive Board's AI voices. No secrets here:
+# set the key with `npx wrangler secret put OPENROUTER_API_KEY1`.
+name = "executive-board-ai"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+# REQUIRED: the only origin allowed to use this Worker (without it, every request gets a 403).
+# Set it here or in the dashboard (Settings > Variables and Secrets).
+# [vars]
+# ALLOWED_ORIGIN = "https://YOUR-NAME.github.io"
